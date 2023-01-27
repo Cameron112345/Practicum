@@ -8,6 +8,7 @@ import aiohttp
 import aiofiles
 from typing import List
 import html
+import sys
 
 
 
@@ -30,6 +31,8 @@ class Resource:
     alreadyDownloaded: List[str] = []
     mvnuPrefix: str = 'https://mvnu.edu'
     archivePrefix: str = None
+    connectionErrors: int = 0
+    maxConnectionErrors: int = 30
 
     def __init__(self, baseLink: str, origin: str):
 
@@ -50,6 +53,8 @@ class Resource:
     async def createBytes(self, session: aiohttp.ClientSession):
         try:
             async with limit:
+                if Resource.connectionErrors > Resource.maxConnectionErrors:
+                    return -1
                 async with session.get(self.mvnuUrl) as r:
                     if not r.ok:
                         with open(Resource.archivePrefix + "/errors.txt", 'a') as errorFile:
@@ -57,11 +62,13 @@ class Resource:
                             errorFile.write("From: " + self.origin + "\n\n")
                         if r.status >= 500:
                             print("ERROR: ", r.status)
+                            Resource.connectionErrors += 1
                         self.valid = False
                     else:
                         self.bytes = await r.read()
                         await asyncio.sleep(0)
                         self.valid = True
+                    return 0
         
         except Exception as e:
             print("error downloading ", self.baseLink)
@@ -71,16 +78,12 @@ class Resource:
                 await self.createBytes(session)
 
     async def saveBytes(self):
-        if not self.valid:
-            return
         async with aiofiles.open(self.archiveUrl, mode='wb') as f:
             await f.write(self.bytes)
             Resource.alreadyDownloaded.append(self.baseLink)
 
 
     def makeDirs(self):
-        if not self.valid:
-            return
         if not os.path.exists(os.path.dirname(self.archiveUrl)):
             os.makedirs(os.path.dirname(self.archiveUrl))
 
@@ -95,6 +98,8 @@ class Page:
     alreadyDownloaded: List[str] = []
     archivePrefix: str = None
     mvnuPrefix: str = 'https://mvnu.edu'
+    connectionErrors: int = 0
+    maxConnectionErrors: int = 30
 
 
     def __init__ (self, baseUrl: str, parentPage: str = "") -> None:
@@ -145,10 +150,7 @@ class Page:
 
 
     def createSoup(self):
-        if self.valid:
-            self.soup = bs(self.pageText, 'html.parser')
-        else:
-            print("Error: Page text is None")
+        self.soup = bs(self.pageText, 'html.parser')
 
     
 
@@ -179,6 +181,8 @@ class Page:
     async def createPageText(self, session: aiohttp.ClientSession):
         try:
             async with limit:
+                if Page.connectionErrors > Page.maxConnectionErrors:
+                    return -1
                 async with session.get(self.mvnuUrl) as r:
                     Page.alreadyDownloaded.append(self.baseUrl)
                     if not r.ok:
@@ -187,10 +191,12 @@ class Page:
                             errorFile.write("From: " + self.parentPage + "\n\n")
                         if r.status >= 500:
                             print("ERROR: ", r.status)
+                            Page.connectionErrors += 1
                         self.valid = False
                     else:
                         self.pageText = await r.text(encoding='UTF-8')
                         self.valid = True
+                    return 0
         except Exception as e:
             print("Error downloading page: ", self.baseUrl)
             print(e)
@@ -201,16 +207,12 @@ class Page:
 
 
     def makeDirs(self):
-        if not self.valid:
-            return
         if not os.path.exists(os.path.dirname(self.archiveUrl)):
             os.makedirs(os.path.dirname(self.archiveUrl))
 
 
 
     async def savePageText(self) -> None:
-        if not self.valid:
-            return
         async with aiofiles.open(self.archiveUrl, mode='w', encoding='utf-8') as f:
             await f.write(self.pageText)
         
@@ -224,28 +226,20 @@ class Page:
     
 
 
-async def run():
-    
+async def createArchive(limit: int = 1000):
+    status = 0
     try:
-
+        now = datetime.datetime.now().strftime('%d%m%y%H%M%S')
+        Page.archivePrefix = 'archives/' + now
+        Resource.archivePrefix = 'archives/' + now
         async with aiohttp.ClientSession() as session:
-
-            
             currentPages: List[Page] = [Page('')]
 
-            limit = 1000
             current = 0
             while len(currentPages) > 0:
                 current += 1
                 if current > limit:
                     return
-                
-                """#Converts list of url strings into page objects
-                currentPages: List[Page] = []
-                for url in currentUrls:
-                    if url not in Page.alreadyDownloaded:
-                        currentPages.append(Page(url))"""
-                
 
                 print("\nLength of currentPages: ", len(currentPages))
                 print("length of pages already downloaded: ", len(Page.alreadyDownloaded))
@@ -261,7 +255,9 @@ async def run():
                         task = asyncio.create_task(page.createPageText(session))
                         tasks.append(task)
                     currentPages.extend(listOfCurrentPages)
-                    await asyncio.gather(*tasks)
+                    statusCodes = await asyncio.gather(*tasks)
+                if -1 in statusCodes:
+                    return "Too Many 500 Errors"
                 print("Done creating page texts")
 
 
@@ -284,12 +280,6 @@ async def run():
                             newPages.append(Page(link, page.mvnuUrl))
                             newLinks.append(link)
 
-                """hrefs = []
-                for page in currentPages:
-                    hrefs.extend(page.getLinksFromSoup())
-                hrefs = [href for href in hrefs if not tags.match(href) and not news.match(href) and not uploads.match(href)]
-                hrefs = list(set(hrefs))"""
-                
 
                 print("Done getting hrefs")
 
@@ -325,7 +315,9 @@ async def run():
                         #await asyncio.sleep(delay)
                         task = asyncio.create_task(resource.createBytes(session))
                         tasks.append(task)
-                    await asyncio.gather(*tasks)
+                    statusCodes = await asyncio.gather(*tasks)
+                    if -1 in statusCodes:
+                        return "Too Many 500 errors"
                     print("Done downloading batch of resources")
                 print("Done downloading resources")
 
@@ -337,8 +329,9 @@ async def run():
                 tasks = []
                 for page in currentPages:
                     for resource in page.resources:
-                        task = asyncio.create_task(resource.saveBytes())
-                        tasks.append(task)
+                        if resource.valid:
+                            task = asyncio.create_task(resource.saveBytes())
+                            tasks.append(task)
                 await asyncio.gather(*tasks)
                 print("Done saving resources")
 
@@ -346,19 +339,26 @@ async def run():
                 #Change currentUrls to contain the new hrefs
                 currentPages = newPages
 
-    except Exception as e:
-        print(e)
+        return "SUCCESS"
 
-        
+    except Exception as e:
+        exception_type, exception_object, exception_traceback = sys.exc_info()
+        filename = exception_traceback.tb_frame.f_code.co_filename
+        line_number = exception_traceback.tb_lineno
+
+        print("Exception type: ", exception_type)
+        print("File name: ", filename)
+        print("Line number: ", line_number)
+        return e
+
+def run(limit = 1000):
+    status = asyncio.run(createArchive(limit))
+    return status
+
 
 
 if __name__ == '__main__':
-
-    now = datetime.datetime.now().strftime('%d%m%y%H%M%S')
-    Page.archivePrefix = 'archives/' + now
-    Resource.archivePrefix = 'archives/' + now
-
     start = time.time()
-    asyncio.run(run())
+    asyncio.run(createArchive())
     end = time.time()
     print(end-start)
