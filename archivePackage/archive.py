@@ -239,7 +239,7 @@ async def createArchive(limit: int = 1000):
             while len(currentPages) > 0:
                 current += 1
                 if current > limit:
-                    return
+                    break
 
                 print("\nLength of currentPages: ", len(currentPages))
                 print("length of pages already downloaded: ", len(Page.alreadyDownloaded))
@@ -339,7 +339,7 @@ async def createArchive(limit: int = 1000):
                 #Change currentUrls to contain the new hrefs
                 currentPages = newPages
 
-        return "SUCCESS"
+            return "SUCCESS"
 
     except Exception as e:
         exception_type, exception_object, exception_traceback = sys.exc_info()
