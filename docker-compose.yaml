@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  apache:
+    build: ./Archives
+    ports:
+      - 8080:80
+      - 9090:90
+    volumes:
+      - archives:/usr/local/apache2/htdocs
+
+    
+  flask:
+    build: ./FlaskApp
+    ports:
+      - 5000:5000
+    volumes:
+      - archives:/app/archives
+      - sql:/app/sql
+
+#  db:
+#    image: mysql/mysql-server:latest
+#    volumes:
+#      - sql:/var/lib/mysql
+#    environment:
+#      - MYSQL_ROOT_PASSWORD=8915
+#    ports:
+#      - 3306:3306
+
+volumes:
+  archives:
+  sql:
+
+
+
+

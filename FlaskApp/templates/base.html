@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% if title %}
+      <title>{{ title }} - Archive Tool</title>
+    {% else %}
+      <title>Welcome to Archive Tool</title>
+    {% endif %}
+      <link rel="stylesheet" href= {{url_for('static', filename='styles/base.css')}}>
+</head>
+<body>
+    <nav>
+        Archive: 
+        <a href="/index">Home</a>
+        {% if current_user.is_anonymous %}
+        <a href="/login">Login</a>
+        {% else %}
+        <a href="/logout">Logout</a>
+        {% endif %}
+        {% if current_user.isAdmin %}
+        <a href="/users">Users</a>
+        {% endif %}
+        <a href="/archives">Archives</a>
+    </nav>
+    <hr>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+</body>
+</html>

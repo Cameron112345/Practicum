@@ -1,0 +1,81 @@
+
+body{
+    padding: 1rem;
+}
+
+.wrapper{
+    max-width: 22rem;
+    margin: auto;
+}
+
+
+form{
+    display: grid;
+    place-content: center;
+    column-gap: 3rem;
+    row-gap: 1rem;
+    grid-template-columns: 1fr;
+    grid-template-areas: 
+        "username"
+        "password"
+        "remember_me"
+        "submit";
+    /* padding: 1rem; */
+    width: 100%;
+}
+
+.username{
+    grid-area: username;
+}
+
+.username input,
+.password input{
+    width: 100%;
+    border-radius: 10px;
+    height: 2rem;
+    padding-left: 1ch;
+}
+
+.password{
+    grid-area: password;
+}
+
+.remember_me{
+    grid-area: remember_me;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+}
+.remember_me input{
+    margin-right: 1rem;
+    scale: 1.5;
+}
+
+.submit{
+    display: flex;
+    justify-content: center;
+    grid-area: submit;
+}
+.submit input{
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+}
+
+h2{
+    text-align: center;
+}
+
+
+
+@media (min-width: 300px){
+    form{
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas: 
+            "username username"
+            "password password"
+            "remember_me submit";
+    }
+    .submit{
+        justify-content: right;
+    }
+}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<button><a href="{{url_for('addUser')}}" style="text-decoration: none;">Add User</a></button>
+    {% for user in users %}
+        <div style="border: 1px solid red;">
+            <p>ID: {{ user.id }}</p>
+            <p>Username: {{ user.username }}</p>
+            <p>Email: {{ user.email }}</p>
+            {% if user.isAdmin %}
+                <p>Admin: YES</p>
+            {% else %}
+                <p>Admin: NO</p>
+            {% endif %}
+            <button><a href="/removeUser/{{user.username}}">Remove User</a></button>
+        </div>
+    {% endfor %}
+{% endblock %}

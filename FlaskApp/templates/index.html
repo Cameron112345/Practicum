@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Hi, {{ current_user.username }}!</h1>
+    <div>You are logged in!</div>
+    {% if current_user.isAdmin %}
+    <div>You are an admin!</div>
+    {% else %}
+    <div>You are not an admin!</div>
+    {% endif %}
+
+    
+{% endblock %}

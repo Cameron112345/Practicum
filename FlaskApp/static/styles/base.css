@@ -1,0 +1,53 @@
+:root {
+    --blue-500: hsl(213, 100%, 23%);
+    --blue-400: hsl(213, 100%, 35%);
+    --blue-300: hsl(213, 100%, 50%);
+}
+
+*,
+*::after,
+*::before{
+    box-sizing: border-box;
+}
+
+html{
+    font-family: system-ui;
+}
+
+body{
+    background-color: hsl(0, 0%, 95%);
+    margin: 0;
+}
+
+a{
+    text-decoration: none;
+}
+
+a:visited{
+    color: inherit;
+}
+
+nav{
+    display: flex;
+}
+
+nav > a{
+    margin: 0 10px;
+}
+
+nav > a:hover{
+    transform: scale(1.1);
+    transition: transform 200ms ease-in-out;
+}
+
+input[type='submit']{
+    background-color: var(--blue-500);
+    color: white;
+    cursor: pointer;
+}
+
+
+input[type='submit']:hover,
+input[type='submit']:focus{
+    background-color: var(--blue-300);
+}
