@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Add Archive</h1>
+    <button><a href="{{url_for('archives')}}">Back to Archives</a></button>
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.prefix.label }}<br>
+            {{ form.prefix(size=32) }}<br>
+            {% for error in form.prefix.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.recursive() }}{{ form.recursive.label }}</p>
+        <p>{{ form.submit() }}</p>
+    </form>
+
+{% endblock %}

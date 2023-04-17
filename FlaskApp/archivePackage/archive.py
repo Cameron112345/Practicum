@@ -372,8 +372,8 @@ def run(id: int, loopLimit: int = 1000):
 if __name__ == '__main__':
     start = time.time()
     if len(sys.argv) > 1:
-        asyncio.run(createArchive(int(sys.argv[1])))
+        asyncio.run(createArchive(1, int(sys.argv[1])))
     else:
-        asyncio.run(createArchive())
+        asyncio.run(createArchive(1))
     end = time.time()
     print(end-start)

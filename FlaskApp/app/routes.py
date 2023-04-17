@@ -1,6 +1,6 @@
 from flask import render_template, flash, redirect, url_for
 from app import app, db
-from app.forms import LoginForm, AddUserForm
+from app.forms import LoginForm, AddUserForm, AddArchiveForm
 from flask_login import current_user, login_user, logout_user, login_required
 from app.models import User, Archive
 from werkzeug.urls import url_parse
@@ -88,39 +88,28 @@ def addUser():
 
 
 
-# block = False
-
-# def unblock(status, id):
-#     global block
-
-#     if status != "SUCCESS":
-#         db.session.delete(Archive.query.filter_by(id=id))
-#         db.session.commit()
-
-#     block = False
-
-
-
-@app.route('/createArchive')
+@app.route('/createArchive', methods=['GET', 'POST'])
 @login_required
 def createArchive():
+    form = AddArchiveForm()
 
     if not current_user.isAdmin:
         return unauthorized()
-
-    global thread
-    global thread_archive_id
-    if not globals.thread.is_alive():
-        newArchive = Archive(user_id=str(current_user.id))
-        db.session.add(newArchive)
-        db.session.commit()
-        globals.thread_archive_id = newArchive.id
-        globals.thread = Thread(target=archive.run, args=(newArchive.id, 1))
-        globals.thread.start()
+    
+    if form.validate_on_submit():
+        global thread
+        global thread_archive_id
+        if not globals.thread.is_alive():
+            newArchive = Archive(user_id=str(current_user.id))
+            db.session.add(newArchive)
+            db.session.commit()
+            globals.thread_archive_id = newArchive.id
+            globals.thread = Thread(target=archive.run, args=(newArchive.id, 1))
+            globals.thread.start()
+        else:
+            flash('Thread already started!')
         return redirect(url_for('archives'))
-    else:
-        flash('Thread already started!')
-        return redirect(url_for('archives'))
+    return render_template('addArchive.html', form=form)
 #-------------------------------------------------------------------------------
 
 

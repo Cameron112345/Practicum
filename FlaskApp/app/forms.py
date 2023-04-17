@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, EmailField
 from wtforms.validators import DataRequired, Email, ValidationError, EqualTo
 from app.models import User
+import requests
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -23,3 +24,12 @@ class AddUserForm(FlaskForm):
         if user is not None:
             raise ValidationError('Please use a different username.')
         
+
+class AddArchiveForm(FlaskForm):
+    prefix = StringField('Prefix')
+    recursive = BooleanField('Recursive')
+    submit = SubmitField('Create Archive')
+
+    def validate_prefix(self, prefix):
+        if not requests.get('https://www.mvnu.edu' + prefix.data).ok:
+            raise ValidationError('Invalid prefix')
