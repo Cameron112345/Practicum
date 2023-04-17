@@ -227,19 +227,15 @@ class Page:
     
 
 
-async def createArchive(id, limit: int = 1000):
+async def createArchive(id, prefix, recursive):
     status = 0
     try:
         Page.archivePrefix = 'archives/' + str(id)
         Resource.archivePrefix = 'archives/' + str(id)
         async with aiohttp.ClientSession() as session:
-            currentPages: List[Page] = [Page('')]
+            currentPages: List[Page] = [Page(prefix)]
 
-            current = 0
             while len(currentPages) > 0:
-                current += 1
-                if current > limit:
-                    break
 
                 print("\nLength of currentPages: ", len(currentPages))
                 print("length of pages already downloaded: ", len(Page.alreadyDownloaded))
@@ -279,8 +275,9 @@ async def createArchive(id, limit: int = 1000):
                 for page in currentPages:
                     for link in page.getLinksFromSoup():
                         if not tags.match(link) and not news.match(link) and not uploads.match(link) and link not in newLinks and link not in Page.alreadyDownloaded:
-                            newPages.append(Page(link, page.mvnuUrl))
-                            newLinks.append(link)
+                            if prefix in link:
+                                newPages.append(Page(link, page.mvnuUrl))
+                                newLinks.append(link)
 
 
                 print("Done getting hrefs")
@@ -342,6 +339,9 @@ async def createArchive(id, limit: int = 1000):
                 #Change currentUrls to contain the new hrefs
                 currentPages = newPages
 
+                if not recursive:
+                    return "SUCCESS"
+
             return "SUCCESS"
 
     except Exception as e:
@@ -356,14 +356,14 @@ async def createArchive(id, limit: int = 1000):
     
 
 
-def run(id: int, loopLimit: int = 1000):
+def run(id: int, prefix: str, recursive: bool):
     global limit
     Page.alreadyDownloaded = []
     Page.connectionErrors = 0
     Resource.alreadyDownloaded = []
     Resource.connectionErrors = 0
     limit = asyncio.Semaphore(30)
-    status = asyncio.run(createArchive(id, loopLimit))
+    status = asyncio.run(createArchive(id, prefix, recursive))
     print(status)
     return None
 

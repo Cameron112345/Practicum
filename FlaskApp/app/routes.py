@@ -104,7 +104,7 @@ def createArchive():
             db.session.add(newArchive)
             db.session.commit()
             globals.thread_archive_id = newArchive.id
-            globals.thread = Thread(target=archive.run, args=(newArchive.id, 1))
+            globals.thread = Thread(target=archive.run, args=(newArchive.id, form.prefix.data, form.recursive.data))
             globals.thread.start()
         else:
             flash('Thread already started!')
@@ -131,7 +131,6 @@ def removeArchive(id):
     flash("thread_archive_id:" + str(globals.thread_archive_id))
     flash("id:" + str(id))
     if str(globals.thread_archive_id) == str(id):
-        flash("test")
         globals.event.set()
         globals.thread.join()
         globals.event.clear()
