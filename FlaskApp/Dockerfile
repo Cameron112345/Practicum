@@ -6,7 +6,7 @@ COPY . .
 RUN pip install -r requirements.txt
 RUN flask db upgrade
 
-ENV FLASK_APP test
+ENV FLASK_APP flask_up
 ENV FLASK_DEBUG 1
 
 EXPOSE 5000
