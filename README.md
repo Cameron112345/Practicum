@@ -13,6 +13,7 @@ Technologies used for this tool include:
 * Multithreading
 * Web Scraping
 
+
 ## For Regular Users:
 Be sure to contact your adminstrator to retrieve your login information. You may need to provide an email address.
 
@@ -23,9 +24,11 @@ on any machine that Docker and Docker Compose are installed on.
 To add an inital user on the system, first enter the Docker CLI of the FlaskApp container.
 Run These commands:
 ```
+flask shell
 user = User(username="<username>", email="<email>", isAdmin=True)
 user.set_password("<password>")
 db.session.add(user)
 db.session.commit()
+exit()
 ```
 You can now log in on the app using these credentials, and use the users tab to create more users.
