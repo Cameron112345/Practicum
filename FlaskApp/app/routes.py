@@ -127,6 +127,7 @@ def removeArchive(id):
         db.session.commit()
     else:
         flash("That archive does not exist")
+        return redirect(url_for('archives'))
 
     flash("thread_archive_id:" + str(globals.thread_archive_id))
     flash("id:" + str(id))
@@ -136,7 +137,6 @@ def removeArchive(id):
         globals.event.clear()
 
     if os.path.isdir(f"{os.getcwd()}/archives/{id}"):
-        
         shutil.rmtree(f'archives/{id}')
         
     flash('Archive has been deleted')
