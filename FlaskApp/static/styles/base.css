@@ -29,13 +29,14 @@ a:visited{
 
 nav{
     display: flex;
+    justify-content: space-between;
 }
 
-nav > a{
+nav > div > a{
     margin: 0 10px;
 }
 
-nav > a:hover{
+nav > div > a:hover{
     transform: scale(1.1);
     transition: transform 200ms ease-in-out;
 }

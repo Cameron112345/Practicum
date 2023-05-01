@@ -81,7 +81,7 @@ class Resource:
     async def saveBytes(self):
         async with aiofiles.open(self.archiveUrl, mode='wb') as f:
             await f.write(self.bytes)
-            Resource.alreadyDownloaded.append(self.baseLink)
+            #Resource.alreadyDownloaded.append(self.baseLink)
 
 
     def makeDirs(self):
@@ -148,6 +148,7 @@ class Page:
         for link in links:
             if link not in Resource.alreadyDownloaded:
                 self.resources.append(Resource(html.unescape(link), self.mvnuUrl))
+                Resource.alreadyDownloaded.append(link)
 
 
     def createSoup(self):
@@ -239,6 +240,8 @@ async def createArchive(id, prefix, recursive):
 
                 print("\nLength of currentPages: ", len(currentPages))
                 print("length of pages already downloaded: ", len(Page.alreadyDownloaded))
+                print("length of resources already downloaded: ", len(Resource.alreadyDownloaded))
+                Resource.alreadyDownloaded = list(set(Resource.alreadyDownloaded))
                 print("length of resources already downloaded: ", len(Resource.alreadyDownloaded))
 
                 #Creates page text from Page objects

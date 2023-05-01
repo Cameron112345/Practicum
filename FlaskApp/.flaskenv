@@ -1,2 +1,2 @@
-FLASK_APP=test
+FLASK_APP=flask_up
 FLASK_DEBUG=1

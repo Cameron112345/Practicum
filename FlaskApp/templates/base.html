@@ -13,17 +13,17 @@
 </head>
 <body>
     <nav>
+      <div>
         Archive: 
         <a href="/index">Home</a>
-        {% if current_user.is_anonymous %}
-        <a href="/login">Login</a>
-        {% else %}
-        <a href="/logout">Logout</a>
-        {% endif %}
         {% if current_user.isAdmin %}
         <a href="/users">Users</a>
         {% endif %}
         <a href="/archives">Archives</a>
+      </div>
+      <div>
+        <a href="/logout">Logout</a>
+      </div>
     </nav>
     <hr>
     {% with messages = get_flashed_messages() %}
