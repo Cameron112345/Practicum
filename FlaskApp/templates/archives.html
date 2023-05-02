@@ -12,7 +12,7 @@
                 <p>ID: {{ archive.id }}</p>
                 <p>Created By : {{ archive.user_id }}</p>
                 <p>Created At: {{ archive.created_on }}</p>
-                <button><a target="_blank" href="http://{{archive.id}}.localhost:9090">View Archive</a></button><br><br>
+                <button><a target="_blank" href={{"http://" ~ archive.id ~ ".localhost:9090" ~ archive.prefix}}>View Archive</a></button><br><br>
                 <button><a href="/removeArchive/{{archive.id}}">Remove archive</a></button>
             </div>
         {% endfor %}

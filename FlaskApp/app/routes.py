@@ -100,7 +100,7 @@ def createArchive():
         global thread
         global thread_archive_id
         if not globals.thread.is_alive():
-            newArchive = Archive(user_id=str(current_user.id))
+            newArchive = Archive(user_id=str(current_user.id), prefix=form.prefix.data)
             db.session.add(newArchive)
             db.session.commit()
             globals.thread_archive_id = newArchive.id

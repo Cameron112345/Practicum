@@ -31,5 +31,19 @@ class AddArchiveForm(FlaskForm):
     submit = SubmitField('Create Archive')
 
     def validate_prefix(self, prefix):
-        if not requests.get('https://www.mvnu.edu' + prefix.data).ok:
+
+        temp: str = prefix.data
+
+        if (not temp.startswith('/')) and (temp != ''):
+            temp = '/' + temp
+        if (not temp.endswith('.html')) and (temp != ''):
+            temp = temp + '.html'
+
+        if temp is None:
+            temp = ""
+
+        self.prefix.data = temp
+
+
+        if not requests.get('https://www.mvnu.edu' + temp).ok:
             raise ValidationError('Invalid prefix')

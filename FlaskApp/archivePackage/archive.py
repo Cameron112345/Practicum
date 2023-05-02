@@ -228,9 +228,12 @@ class Page:
     
 
 
-async def createArchive(id, prefix, recursive):
+async def createArchive(id, prefix: str, recursive):
     status = 0
     try:
+
+        prefix = prefix[1:-5]
+
         Page.archivePrefix = 'archives/' + str(id)
         Resource.archivePrefix = 'archives/' + str(id)
         async with aiohttp.ClientSession() as session:

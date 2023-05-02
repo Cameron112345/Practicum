@@ -29,6 +29,7 @@ class User(UserMixin, db.Model):
 class Archive(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    prefix = db.Column(db.String(40))
     created_on = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
     def __repr__(self) -> str:
